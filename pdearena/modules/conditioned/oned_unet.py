@@ -17,11 +17,21 @@ def conv_layer(
     c_in: int, c_out: int, kernel_size: int, stride: int = 1, dilation: int = 1, padding: int = -1, n_dims: int = 1
 ):
     if padding < 0:
-        padding = kernel_size // 2 if isinstance(kernel_size, int) else (kernel_size[0] // 2, kernel_size[1] // 2)
+        if isinstance(kernel_size, int):
+            padding = kernel_size // 2
+        elif n_dims == 2:
+            padding = (kernel_size[0] // 2, kernel_size[1] // 2)
+        elif n_dims == 3:
+            padding = (kernel_size[0] // 2, kernel_size[1] // 2, kernel_size[2] // 2)
+        else:
+            padding = kernel_size // 2
     if n_dims == 1:
         return nn.Conv1d(c_in, c_out, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation)
     elif n_dims == 2:
         return nn.Conv2d(c_in, c_out, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation)
+    elif n_dims == 3:
+        # For 3D, use integer values for all dimensions (kernel_size is always int in this codebase)
+        return nn.Conv3d(c_in, c_out, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation)
     else:
         raise NotImplementedError(f"n_dims {n_dims} not implemented")
 
