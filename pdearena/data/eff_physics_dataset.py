@@ -36,6 +36,9 @@ def _stack_grids(sample: dict, spatial_shape: Optional[Tuple[int, ...]] = None) 
             Z_grid (H, W, D) or (H, W) -> expanded to (H, W, D),
             T_grid (T,) -> expanded to (H, W, D)
 
+    If grids are not available in the sample, they will be constructed as normalized
+    coordinate grids based on the spatial shape.
+
     Args:
         sample: Dictionary containing grid data
         spatial_shape: Optional spatial shape (H, W) or (H, W, D) to expand grids.
@@ -120,8 +123,33 @@ def _stack_grids(sample: dict, spatial_shape: Optional[Tuple[int, ...]] = None) 
             else:
                 raise ValueError(f"Unsupported grid dimension for {k}: {g.ndim}D (shape={g.shape})")
     
+    # If no grids were found, construct normalized coordinate grids
     if not grids:
-        raise KeyError("No coordinate grids found in sample (expected keys like X_grid/T_grid).")
+        if spatial_shape is None:
+            raise ValueError("Cannot construct grids: spatial_shape is required when grids are not in sample.")
+        
+        # Construct normalized coordinate grids
+        # Use meshgrid to create proper 2D coordinate grids
+        if len(spatial_shape) == 2:
+            # 2D: create X and T grids
+            H, W = spatial_shape
+            # Create meshgrid: X varies along W (columns), T varies along H (rows)
+            x_coords = np.linspace(0, 1, W, dtype=np.float32)
+            t_coords = np.linspace(0, 1, H, dtype=np.float32)
+            X_grid, T_grid = np.meshgrid(x_coords, t_coords, indexing='xy')
+            grids = [X_grid.astype(np.float32), T_grid.astype(np.float32)]
+        elif len(spatial_shape) == 3:
+            # 3D: create X, Y, Z grids
+            H, W, D = spatial_shape
+            x_coords = np.linspace(0, 1, W, dtype=np.float32)
+            y_coords = np.linspace(0, 1, H, dtype=np.float32)
+            z_coords = np.linspace(0, 1, D, dtype=np.float32)
+            X_grid = np.broadcast_to(x_coords[np.newaxis, :, np.newaxis], (H, W, D))
+            Y_grid = np.broadcast_to(y_coords[:, np.newaxis, np.newaxis], (H, W, D))
+            Z_grid = np.broadcast_to(z_coords[np.newaxis, np.newaxis, :], (H, W, D))
+            grids = [X_grid, Y_grid, Z_grid]
+        else:
+            raise ValueError(f"Cannot construct grids for {len(spatial_shape)}D spatial shape")
     
     return np.stack(grids, axis=0)
 

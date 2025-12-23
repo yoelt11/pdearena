@@ -104,6 +104,17 @@ class ResNet(nn.Module):
                     self.activation,
                     nn.Linear(time_embed_dim, time_embed_dim),
                 )
+            elif self.param_conditioning.startswith("scalar_"):
+                # Support scalar_N format for multiple parameters (e.g., scalar_3 for 3 parameters)
+                n_params = int(self.param_conditioning.split("_")[1])
+                self.pde_emb = nn.ModuleList([
+                    nn.Sequential(
+                        nn.Linear(hidden_channels, time_embed_dim),
+                        self.activation,
+                        nn.Linear(time_embed_dim, time_embed_dim),
+                    )
+                    for _ in range(n_params)
+                ])
             else:
                 raise NotImplementedError(f"Param conditioning {self.param_conditioning} not implemented")
 
@@ -186,7 +197,15 @@ class ResNet(nn.Module):
         emb = self.time_embed(fourier_embedding(time, self.in_planes))
         if z is not None:
             if self.param_conditioning == "scalar":
-                emb = emb + self.pde_emb(fourier_embedding(z, self.in_planes))
+                # fourier_embedding expects 1D tensor, so squeeze if needed
+                z_1d = z.squeeze(-1) if z.ndim > 1 else z
+                emb = emb + self.pde_emb(fourier_embedding(z_1d, self.in_planes))
+            elif self.param_conditioning.startswith("scalar_"):
+                # Handle multiple parameters
+                if z.ndim == 1:
+                    z = z[:, None]
+                for i in range(z.shape[-1]):
+                    emb = emb + self.pde_emb[i](fourier_embedding(z[..., i], self.in_planes))
         # prev = x.float()
         x = self.activation(self.conv_in1(x.float()))
         x = self.activation(self.conv_in2(x.float()))

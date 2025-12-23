@@ -1,0 +1,40 @@
+seed_everything: 0
+
+trainer:
+  accelerator: auto
+  devices: 1
+  max_epochs: 1000
+  log_every_n_steps: 250
+  enable_checkpointing: true
+  default_root_dir: outputs/eff_burgers_fno
+
+model:
+  n_input_channels: 2        # X_grid + T_grid
+  n_output_channels: 1       # u
+  n_params: 3                # A, k, nu
+  hidden_channels: 64
+  modes1: 16                  # Fourier modes in first spatial dimension
+  modes2: 16                  # Fourier modes in second spatial dimension
+  num_blocks: [1, 1, 1, 1]    # ResNet block configuration
+  activation: gelu
+  norm: false
+  lr: 0.001
+  weight_decay: 0.0
+  metrics_out_path: outputs/eff_burgers_fno/metrics.json
+  plot_out_path: outputs/eff_burgers_fno/gt_pred_abs_error.png
+  plot_max_rows: 16
+
+data:
+  equation: burgers
+  data_dir: datasets
+  seed: 0
+  n_train: 10
+  batch_size: 8
+  num_workers: 0
+  pin_memory: false
+  include_grids: true
+  standardize_u: true
+  cache: true
+
+
+
