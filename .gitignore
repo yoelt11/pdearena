@@ -139,12 +139,9 @@ cython_debug/
 
 .vscode
 
-# Outputs: exclude checkpoints and logs, but allow metrics and images
-outputs/**/lightning_logs/
-outputs/**/checkpoints/
-outputs/**/*.ckpt
-outputs/**/*.pth
-outputs/**/*.pt
-# Allow metrics and visualization images
-!outputs/**/metrics.json
-!outputs/**/*.png
+# Local datasets and experiment artifacts (often very large)
+datasets/
+outputs/
+
+# OS cruft
+.DS_Store
