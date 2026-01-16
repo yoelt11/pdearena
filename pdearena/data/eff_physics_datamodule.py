@@ -45,6 +45,11 @@ class EffPhysicsParametricDataModule(LightningDataModule):
         include_grids: bool = True,
         standardize_u: bool = True,
         cache: bool = True,
+        # Balanced split parameters for deterministic, equal-sized test sets
+        balance: bool = True,  # Enable balanced splits by default
+        n_each: int = 20,  # Number of samples in each split (interp and extrap)
+        balance_strategy: str = "random",  # 'random' or 'solution_nn'
+        diversify: bool = False,  # Enable diversity selection
     ) -> None:
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -54,16 +59,40 @@ class EffPhysicsParametricDataModule(LightningDataModule):
         self.train_ds = None
         self.interp_ds = None
         self.extrap_ds = None
+        
+        # Store split objects to access indices later
+        self._train_few_split = None
+        self._interp_split = None
+        self._extrap_split = None
 
     def setup(self, stage: Optional[str] = None) -> None:
         from eff_physics_learn_dataset.datasets import load_pde_dataset
 
         ds = load_pde_dataset(self.hparams.equation, data_dir=self.hparams.data_dir, cache=self.hparams.cache)
-        splits = ds.parametric_splits(seed=int(self.hparams.seed), n_train=int(self.hparams.n_train))
+        
+        # Use balanced splits by default for deterministic, equal-sized test sets
+        balance = bool(self.hparams.balance) if hasattr(self.hparams, 'balance') else True
+        n_each = int(self.hparams.n_each) if hasattr(self.hparams, 'n_each') else 20
+        balance_strategy = str(self.hparams.balance_strategy) if hasattr(self.hparams, 'balance_strategy') else 'random'
+        diversify = bool(self.hparams.diversify) if hasattr(self.hparams, 'diversify') else False
+        
+        splits = ds.parametric_splits(
+            seed=int(self.hparams.seed),
+            n_train=int(self.hparams.n_train),
+            balance=balance,
+            n_each=n_each if balance else None,
+            balance_strategy=balance_strategy,
+            diversify=diversify,
+        )
 
         train_few = splits["train_few"]
         interp = splits["interp"]
         extrap = splits["extrap"]
+        
+        # Store split objects to access indices later
+        self._train_few_split = train_few
+        self._interp_split = interp
+        self._extrap_split = extrap
 
         self.split_sizes = EffParametricSplitSizes(train_few=len(train_few), interp=len(interp), extrap=len(extrap))
 
@@ -148,5 +177,20 @@ class EffPhysicsParametricDataModule(LightningDataModule):
             pin_memory=bool(self.hparams.pin_memory),
             collate_fn=self.collate_fn_cat,
         )
+    
+    def get_split_indices(self) -> dict:
+        """Get indices for train, interp, and extrap splits.
+        
+        Returns:
+            dict with keys 'train', 'interp', 'extrap' containing lists of indices
+        """
+        if self._train_few_split is None or self._interp_split is None or self._extrap_split is None:
+            return {}
+        
+        return {
+            "train": np.asarray(self._train_few_split.indices, dtype=np.int64).tolist(),
+            "interp": np.asarray(self._interp_split.indices, dtype=np.int64).tolist(),
+            "extrap": np.asarray(self._extrap_split.indices, dtype=np.int64).tolist(),
+        }
 
 

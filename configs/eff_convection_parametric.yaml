@@ -34,5 +34,10 @@ data:
   include_grids: false
   standardize_u: true
   cache: true
+  # Balanced splits: deterministic, equal-sized test sets (20 interp + 20 extrap = 40 total)
+  balance: true
+  n_each: 20
+  balance_strategy: random
+  diversify: false
 
 
