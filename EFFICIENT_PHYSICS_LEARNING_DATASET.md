@@ -355,3 +355,72 @@ Each dataset has separate configuration files for U-Net and FNO models. Key conf
 - 3D datasets are only supported by U-Net models
 - All metrics are exported using the `metrics-structures` format for standardized comparison
 
+## Reproducibility
+
+This section documents how to reproduce the experimental results reported in this repository.
+
+### Experimental Configuration
+
+**Seeds Used**: 0, 1, 2
+
+**Data Split Configuration** (applied to all seeds):
+- Training samples: 10
+- Interpolation test samples: 20 (within parameter convex hull)
+- Extrapolation test samples: 20 (outside parameter convex hull)
+- Balance enabled: `true`
+- Balance strategy: `random` (deterministic with fixed seed)
+- `n_each`: 20 (ensures equal-sized interp/extrap splits)
+
+### Split Indices
+
+The exact train/interp/extrap indices for each seed are documented in `results/reproducibility/split_indices/`:
+- `seed_0_split_indices.yaml`: Indices for seed 0
+- `seed_1_split_indices.yaml`: Indices for seed 1
+- `seed_2_split_indices.yaml`: Indices for seed 2
+
+These files ensure complete reproducibility by specifying exactly which samples were used for training and testing.
+
+### Generating Aggregated Results
+
+The aggregated summary tables (`outputs/aggregated_summary_tables.txt`) are generated using:
+
+```bash
+uv run python scripts/aggregate_seed_results.py --seeds 0,1,2
+```
+
+This script:
+1. Loads `metrics.json` from each `outputs/seed_{seed}/eff_{equation}_{model_type}/` directory
+2. Extracts key metrics: `interp_relative_l2_mean`, `extrap_relative_l2_mean`, `test_ms_per_sample`
+3. Computes mean ± standard deviation across all seeds
+4. Generates formatted tables for interpolation and extrapolation results
+
+### Final Results
+
+The aggregated results across seeds 0, 1, and 2 are available in:
+- `results/reproducibility/aggregated_summary_tables.txt`
+
+**Key Findings** (from aggregated results):
+
+**Interpolation (Zero-shot)**:
+- Allen Cahn: U-Net 0.3580 ± 0.3904, FNO 0.1343 ± 0.0018
+- Burgers: U-Net 0.2773 ± 0.0327, FNO 0.2736 ± 0.0116
+- Convection: U-Net 0.2815 ± 0.0411, FNO 0.1751 ± 0.0175
+- Helmholtz2d: U-Net 0.9726 ± 0.1988, FNO 0.7165 ± 0.0221
+
+**Extrapolation (Zero-shot)**:
+- Allen Cahn: U-Net 0.4663 ± 0.2977, FNO 0.2970 ± 0.0020
+- Burgers: U-Net 0.3689 ± 0.0204, FNO 0.3989 ± 0.0306
+- Convection: U-Net 0.3666 ± 0.0137, FNO 0.2769 ± 0.0245
+- Helmholtz2d: U-Net 1.2194 ± 0.0797, FNO 1.0856 ± 0.0124
+
+All errors are **Relative L2 Error** (||pred - target||_2 / ||target||_2).
+
+### Reproducibility Files
+
+Minimal reproducibility files are stored in `results/reproducibility/`:
+- `split_indices/`: Exact data split indices for each seed
+- `example_metrics/`: Example metrics.json files showing output structure
+- `aggregated_summary_tables.txt`: Final aggregated results
+- `README.md`: Detailed reproducibility instructions
+
+See `results/reproducibility/README.md` for complete reproduction instructions.
