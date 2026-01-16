@@ -1,74 +1,81 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/1785175/199388258-4ca228d5-9f0b-463d-82dd-6c27015bc4ab.png" width="400px">
-</p>
-<h1 align="center">PDEArena</h1>
+# PDE Arena - Efficient Physics Learning Dataset Integration
 
-[![Documentation](https://img.shields.io/badge/docs-passing-brightgreen)](https://microsoft.github.io/pdearena)
-[![Paper](https://img.shields.io/badge/arXiv-2209.15616-blue)](https://arxiv.org/abs/2209.15616)
+This repository contains the implementation and results for training U-Net and FNO (Fourier Neural Operator) models on parametric PDE datasets from the [eff-physics-learn-dataset](https://github.com/yoelt11/eff-physics-learn-dataset) repository.
 
-This repository contains code accompanying the paper [**Towards multi-spatiotemporal-scale generalized PDE modeling**](https://arxiv.org/abs/2209.15616), and as such we hope this serves as a starting point for future PDE surrogate learning research.
-We have imported models from [**Clifford neural layers for PDE modeling**](https://arxiv.org/abs/2209.04934) and [**Geometric Clifford Algebra Networks**](https://arxiv.org/abs/2302.06594).
+## 📖 Documentation
 
-For details about usage please see [documentation](https://pdearena.github.io/pdearena/).
-If you have any questions or suggestions please open a [discussion](https://github.com/microsoft/pdearena/discussions). If you notice a bug, please open an [issue](https://github.com/microsoft/pdearena/issues).
+**👉 [Complete Documentation: EFFICIENT_PHYSICS_LEARNING_DATASET.md](EFFICIENT_PHYSICS_LEARNING_DATASET.md)**
 
-## Citation
+The main documentation includes:
+- Quick start guide for running all experiments
+- Dataset setup and configuration
+- Training and testing procedures
+- Reproducibility information with exact experimental setup
+- Complete results tables with aggregated statistics
+- Dataset indices for all seeds
 
-If you find this repository useful in your research, please consider citing the following papers:
+## 🚀 Quick Start
 
-Initial PDE arena, architecture zoo, Navier-Stokes and Shallow Water datasets:
+### Run All Experiments
+
+```bash
+# Run experiments for seeds 0, 1, 2
+uv run python scripts/run_all_eff_experiments.py --seeds 0,1,2
+
+# Aggregate results across seeds
+uv run python scripts/aggregate_seed_results.py --seeds 0,1,2
+```
+
+## 📊 Results
+
+The repository includes complete reproducibility information:
+
+- **Seeds Used**: 0, 1, 2
+- **Equations Tested**: allen_cahn, burgers, convection, helmholtz2D
+- **Models**: U-Net and FNO
+- **Results**: Aggregated mean ± std across all seeds
+
+See [EFFICIENT_PHYSICS_LEARNING_DATASET.md](EFFICIENT_PHYSICS_LEARNING_DATASET.md#reproducibility) for complete results tables and dataset indices.
+
+## 📁 Repository Structure
+
+```
+├── configs/                    # Configuration files for all experiments
+├── scripts/                    # Training and evaluation scripts
+│   ├── run_all_eff_experiments.py    # Multi-seed experiment runner
+│   ├── aggregate_seed_results.py     # Results aggregation script
+│   └── ...
+├── results/reproducibility/    # Reproducibility artifacts
+│   ├── split_indices/         # Exact data splits for each seed
+│   ├── example_metrics/       # Example output files
+│   └── aggregated_summary_tables.txt
+└── EFFICIENT_PHYSICS_LEARNING_DATASET.md  # Complete documentation
+```
+
+## 🔬 Reproducibility
+
+This repository is designed for full reproducibility:
+
+- **Exact data splits**: Train/interp/extrap indices for each seed
+- **Complete configuration**: All hyperparameters and settings
+- **Aggregated results**: Mean ± std statistics across seeds
+- **Detailed documentation**: Step-by-step reproduction instructions
+
+See the [Reproducibility section](EFFICIENT_PHYSICS_LEARNING_DATASET.md#reproducibility) for details.
+
+## 📝 Citation
+
+If you use this code or results, please cite:
+
 ```bibtex
-@article{gupta2022towards,
-  title={Towards Multi-spatiotemporal-scale Generalized PDE Modeling},
-  author={Gupta, Jayesh K and Brandstetter, Johannes},
-  journal={arXiv preprint arXiv:2209.15616},
-  year={2022}
+@software{pdearena_eff_physics,
+  title = {PDE Arena - Efficient Physics Learning Dataset Integration},
+  author = {Torres, Edgar},
+  year = {2026},
+  url = {https://github.com/yoelt11/pdearena}
 }
 ```
 
-3D Clifford FNO layers, Maxwell data:
-```bibtex
-@article{brandstetter2022clifford,
-  title={Clifford neural layers for PDE modeling},
-  author={Brandstetter, Johannes and Berg, Rianne van den and Welling, Max and Gupta, Jayesh K},
-  journal={arXiv preprint arXiv:2209.04934},
-  year={2022}
-}
-```
+## 📄 License
 
-CGAN layers, CGAN-UNet architectures:
-```bibtex
-@article{ruhe2023geometric,
-  title={Geometric clifford algebra networks},
-  author={Ruhe, David and Gupta, Jayesh K and De Keninck, Steven and Welling, Max and Brandstetter, Johannes},
-  journal={arXiv preprint arXiv:2302.06594},
-  year={2023}
-}
-```
-
-Do remember to cite the original papers as well for individual architectures.
-
-You can further checkout our dedicated repo [**CliffordLayers**](https://microsoft.github.io/cliffordlayers/).
-
-
-## Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
-
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-## Trademarks
-
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
-trademarks or logos is subject to and must follow
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+See LICENSE file for details.
