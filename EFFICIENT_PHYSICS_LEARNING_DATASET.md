@@ -11,6 +11,63 @@ The modifications enable training and evaluation of both U-Net and FNO architect
 - **Few-shot learning**: Training on small parametric splits (typically 10 samples)
 - **Interpolation and extrapolation evaluation**: Separate test splits for within-range and out-of-range parameter values
 
+## Quick Start: Run All Experiments
+
+To run all experiments (training + testing) for all available configs with a single command:
+
+### Single Seed (Default)
+
+```bash
+uv run python scripts/run_all_eff_experiments.py
+# or explicitly:
+uv run python scripts/run_all_eff_experiments.py --seeds 0
+```
+
+### Multiple Seeds (Recommended)
+
+For robust, publication-ready results, run with multiple seeds and aggregate:
+
+```bash
+# Run experiments for seeds 1 and 2 (seed 0 already completed)
+uv run python scripts/run_all_eff_experiments.py --seeds 1,2
+
+# Or run all seeds from scratch
+uv run python scripts/run_all_eff_experiments.py --seeds 0,1,2
+```
+
+**After running multiple seeds, aggregate the results:**
+
+```bash
+uv run python scripts/aggregate_seed_results.py --seeds 0,1,2
+```
+
+This generates aggregated summary tables with mean ± std across seeds.
+
+### What the Scripts Do
+
+**`run_all_eff_experiments.py`:**
+1. **Finds all configs**: Automatically discovers all `eff_*.yaml` config files in `configs/`
+2. **Runs for each seed**: For each specified seed, runs training then testing
+3. **Organizes outputs**: Results are saved in `outputs/seed_{seed}/` directories
+4. **Generates metrics**: Produces `metrics.json` and `split_indices.yaml` for each run
+
+**`aggregate_seed_results.py`:**
+1. **Reads all seed directories**: Loads metrics from `outputs/seed_{seed}/` for each seed
+2. **Computes statistics**: Calculates mean ± std across seeds for each equation/model
+3. **Generates tables**: Creates aggregated summary tables with robust statistics
+
+**Output organization:**
+- Per-seed results: `outputs/seed_{seed}/eff_{equation}_{model_type}/`
+- Aggregated tables: `outputs/aggregated_summary_tables.txt`
+
+The scripts automatically:
+- Determine which training script to use (FNO vs U-Net) based on config filename
+- Find the correct checkpoint path for testing
+- Update config files with the correct seed and output directory
+- Provide progress updates and error reporting
+
+**Note**: Make sure all required datasets are downloaded before running (see [Downloading Datasets](#downloading-datasets) below).
+
 ## Dataset Repository
 
 The datasets are provided by the [eff-physics-learn-dataset](https://github.com/yoelt11/eff-physics-learn-dataset) repository. Each dataset contains parametric PDE solutions where each solution depends on a set of parameters (e.g., diffusion coefficient, reaction rate, etc.).
@@ -93,6 +150,10 @@ python scripts/eff_parametric_fno_train.py fit --config configs/eff_burgers_fno.
 ## Testing
 
 After training, evaluate the model on interpolation and extrapolation test splits:
+
+**Quick option**: Use the automated script to run all experiments (see [Quick Start](#quick-start-run-all-experiments) above).
+
+**Manual option**: Run training and testing individually as shown below:
 
 ### U-Net Model
 
@@ -206,6 +267,25 @@ The framework uses parametric splits from `eff-physics-learn-dataset`:
 - **interp**: Interpolation test set (parameters within the training parameter range)
 - **extrap**: Extrapolation test set (parameters outside the training parameter range)
 
+#### Balanced Splits (Default)
+
+By default, the framework uses **balanced splits** to ensure deterministic, equal-sized test sets that are consistent across projects:
+
+- **Equal-sized splits**: With `n_each=20` (default), you get exactly 20 interpolation samples + 20 extrapolation samples = 40 total test samples
+- **Deterministic selection**: Using a fixed `seed` ensures the same samples are selected across different runs and projects
+  - **Important**: Even with `balance_strategy: random`, the selection is deterministic because the random number generator is seeded by `seed=0`
+  - Same seed → same "random" selection every time
+  - Different seed → different selection
+- **Reproducible evaluation**: This enables fair comparison across different methods and projects
+
+The balanced split approach:
+1. Trains on `n_train=10` samples (few-shot setting)
+2. Partitions remaining samples into interpolation and extrapolation candidates based on convex hull membership
+3. Selects exactly `n_each` samples from each partition using the specified `balance_strategy` and `seed`
+   - The `seed` parameter controls the random number generator, making even "random" selection deterministic and reproducible
+
+This is in contrast to the full partition approach (when `balance=False`), which uses all remaining samples and may result in unequal interp/extrap sizes that vary by dataset.
+
 ### Normalization
 
 Solution fields (`u`) are normalized using statistics computed from the `train_few` split only:
@@ -231,10 +311,21 @@ Each dataset has separate configuration files for U-Net and FNO models. Key conf
 
 - `equation`: Dataset name (burgers, allen_cahn, convection, etc.)
 - `data_dir`: Directory containing downloaded datasets
-- `n_train`: Number of training samples (few-shot setting)
+- `n_train`: Number of training samples (few-shot setting, typically 10)
 - `batch_size`: Training batch size
 - `include_grids`: Whether to include coordinate grids as input
 - `standardize_u`: Whether to normalize solution fields
+- `cache`: Whether to cache loaded datasets
+
+#### Balanced Split Configuration (Default)
+
+- `balance`: Enable balanced splits (default: `true`) - ensures equal-sized interp/extrap test sets
+- `n_each`: Number of samples in each split (default: `20`) - results in 20 interp + 20 extrap = 40 total test samples
+- `balance_strategy`: Selection strategy (default: `'random'`) - options: `'random'` or `'solution_nn'`
+  - `'random'`: Random selection within each partition (seeded by `seed` parameter, so deterministic)
+  - `'solution_nn'`: Solution-aware selection based on distance in solution embedding space (also seeded)
+- `diversify`: Enable diversity selection (default: `false`) - uses farthest-point selection to encourage diversity within chosen subsets
+- `seed`: Random seed (default: `0`) - controls all random operations, ensuring reproducibility
 
 ### FNO-Specific Configuration
 

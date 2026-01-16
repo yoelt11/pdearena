@@ -1,0 +1,32 @@
+
+========================================================================================================================
+INTERPOLATION RESULTS (Aggregated across seeds)
+========================================================================================================================
+
+Equation             Model      Zero-shot (Rel. L2 Error)      ACC Time (ms)        FT after 50 epochs   ACC Time     FT after 250 epochs  ACC Time     FT after 500 epochs  ACC Time     FT after 750 epochs  ACC Time     FT after 1000 epochs ACC Time    
+
+------------------------------------------------------------------------------------------------------------------------
+Allen Cahn           U-Net      0.3580 ± 0.3904                11.50 ± 3.67         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Allen Cahn           FNO        0.1343 ± 0.0018                7.08 ± 2.75          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Burgers              U-Net      0.2773 ± 0.0327                11.83 ± 3.52         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Burgers              FNO        0.2736 ± 0.0116                7.28 ± 2.75          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Convection           U-Net      0.2815 ± 0.0411                11.62 ± 3.38         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Convection           FNO        0.1751 ± 0.0175                6.88 ± 2.31          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Helmholtz2d          U-Net      0.9726 ± 0.1988                14.95 ± 4.19         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Helmholtz2d          FNO        0.7165 ± 0.0221                7.22 ± 2.89          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+
+========================================================================================================================
+EXTRAPOLATION RESULTS (Aggregated across seeds)
+========================================================================================================================
+
+Equation             Model      Zero-shot (Rel. L2 Error)      ACC Time (ms)        FT after 50 epochs   ACC Time     FT after 250 epochs  ACC Time     FT after 500 epochs  ACC Time     FT after 750 epochs  ACC Time     FT after 1000 epochs ACC Time    
+
+------------------------------------------------------------------------------------------------------------------------
+Allen Cahn           U-Net      0.4663 ± 0.2977                11.50 ± 3.67         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Allen Cahn           FNO        0.2970 ± 0.0020                7.08 ± 2.75          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Burgers              U-Net      0.3689 ± 0.0204                11.83 ± 3.52         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Burgers              FNO        0.3989 ± 0.0306                7.28 ± 2.75          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Convection           U-Net      0.3666 ± 0.0137                11.62 ± 3.38         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Convection           FNO        0.2769 ± 0.0245                6.88 ± 2.31          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Helmholtz2d          U-Net      1.2194 ± 0.0797                14.95 ± 4.19         N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
+Helmholtz2d          FNO        1.0856 ± 0.0124                7.22 ± 2.89          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A          N/A                  N/A         
