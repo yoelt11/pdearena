@@ -1,0 +1,58 @@
+ [build-system]
+ requires = ["setuptools>=61.0"]
+ build-backend = "setuptools.build_meta"
+ 
+ [project]
+ name = "pdearena"
+ version = "0.2.0"
+ description = "PyTorch library for PDE Surrogate Benchmarking"
+ readme = "README.md"
+ requires-python = ">=3.7"
+ license = { text = "MIT" }
+ authors = [
+   { name = "Jayesh K. Gupta" },
+   { name = "Johannes Brandstetter" },
+   { name = "contributors" },
+ ]
+ classifiers = [
+   "Programming Language :: Python :: 3",
+   "License :: OSI Approved :: MIT License",
+   "Operating System :: OS Independent",
+   "Development Status :: 4 - Beta",
+   "Topic :: Scientific/Engineering :: Artificial Intelligence",
+ ]
+ dependencies = [
+   "pytorch-lightning>=1.7",
+   "numpy",
+   "xarray",
+   "h5py",
+   "click",
+   "torch>=1.12",
+   "torchdata",
+   "matplotlib",
+  "jsonargparse[signatures]>=4.27.7",
+   "omegaconf",
+   "tensorboard",
+   "pytest",
+   "pytest-mock",
+   "pytest-explicit",
+   "diffusers==0.17.1",
+   "cliffordlayers",
+ ]
+ 
+ [project.optional-dependencies]
+ datagen = [
+   "phiflow==2.1",
+   "fdtd==0.2.5",
+   "joblib",
+   "juliapkg",
+   "tqdm",
+ ]
+ 
+ [project.urls]
+ Documentation = "https://microsoft.github.io/pdearena"
+ "Source code" = "https://github.com/microsoft/pdearena"
+ "Bug Tracker" = "https://github.com/microsoft/pdearena/issues"
+ 
+ [tool.setuptools.packages.find]
+ include = ["pdearena*"]

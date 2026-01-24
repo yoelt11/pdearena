@@ -28,7 +28,7 @@ base_requires = [
     "torch>=1.12",
     "torchdata",
     "matplotlib",
-    "jsonargparse",
+    "jsonargparse[signatures]>=4.27.7",
     "omegaconf",
     "tensorboard",
     "pytest",

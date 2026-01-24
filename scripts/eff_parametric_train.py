@@ -66,7 +66,6 @@ class EffParametricCLI(LightningCLI):
             "n_train": int(self.datamodule.hparams.n_train),
             "balance": bool(self.datamodule.hparams.balance) if hasattr(self.datamodule.hparams, 'balance') else True,
             "n_each": int(self.datamodule.hparams.n_each) if hasattr(self.datamodule.hparams, 'n_each') else 20,
-            "balance_strategy": str(self.datamodule.hparams.balance_strategy) if hasattr(self.datamodule.hparams, 'balance_strategy') else 'random',
             "split_sizes": {
                 "train": len(indices.get("train", [])),
                 "interp": len(indices.get("interp", [])),

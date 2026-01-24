@@ -48,8 +48,8 @@ class EffPhysicsParametricDataModule(LightningDataModule):
         # Balanced split parameters for deterministic, equal-sized test sets
         balance: bool = True,  # Enable balanced splits by default
         n_each: int = 20,  # Number of samples in each split (interp and extrap)
-        balance_strategy: str = "random",  # 'random' or 'solution_nn'
-        diversify: bool = False,  # Enable diversity selection
+        balance_strategy: str = "random",  # Deprecated; kept for config compatibility.
+        diversify: bool = False,  # Deprecated; kept for config compatibility.
     ) -> None:
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -73,16 +73,11 @@ class EffPhysicsParametricDataModule(LightningDataModule):
         # Use balanced splits by default for deterministic, equal-sized test sets
         balance = bool(self.hparams.balance) if hasattr(self.hparams, 'balance') else True
         n_each = int(self.hparams.n_each) if hasattr(self.hparams, 'n_each') else 20
-        balance_strategy = str(self.hparams.balance_strategy) if hasattr(self.hparams, 'balance_strategy') else 'random'
-        diversify = bool(self.hparams.diversify) if hasattr(self.hparams, 'diversify') else False
-        
         splits = ds.parametric_splits(
             seed=int(self.hparams.seed),
             n_train=int(self.hparams.n_train),
             balance=balance,
             n_each=n_each if balance else None,
-            balance_strategy=balance_strategy,
-            diversify=diversify,
         )
 
         train_few = splits["train_few"]

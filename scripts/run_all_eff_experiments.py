@@ -75,8 +75,13 @@ def update_config_seed(config_path, seed, temp_dir):
     in_model_section = False
     
     for i, line in enumerate(lines):
+        # Update data.seed - check this FIRST before other conditions
+        if in_data_section and line.strip().startswith("seed:"):
+            # Update the seed value but stay in data section
+            updated_lines.append(f"  seed: {seed}\n")
+            continue
         # Update seed_everything
-        if line.strip().startswith("seed_everything:"):
+        elif line.strip().startswith("seed_everything:"):
             updated_lines.append(f"seed_everything: {seed}\n")
         # Update default_root_dir to include seed directory
         elif "default_root_dir:" in line:
@@ -120,7 +125,7 @@ def update_config_seed(config_path, seed, temp_dir):
                     updated_lines.append(line)
             else:
                 updated_lines.append(line)
-        # Update data.seed
+        # Track data section
         elif line.strip().startswith("data:"):
             in_data_section = True
             in_model_section = False
@@ -129,12 +134,11 @@ def update_config_seed(config_path, seed, temp_dir):
             in_model_section = True
             in_data_section = False
             updated_lines.append(line)
-        elif in_data_section and line.strip().startswith("seed:"):
-            updated_lines.append(f"  seed: {seed}\n")
-            in_data_section = False
         else:
             updated_lines.append(line)
-            if line.strip() and not line.strip().startswith("#") and not line.strip().startswith(" ") and ":" in line:
+            # Exit data section if we hit a top-level key (not indented and has colon)
+            # Check if line starts with a space (indented) - if not, it's a top-level key
+            if line.strip() and not line.strip().startswith("#") and not line.startswith(" ") and ":" in line and not line.strip().startswith("-"):
                 in_data_section = False
                 in_model_section = False
     
