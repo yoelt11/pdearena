@@ -85,14 +85,6 @@ if [[ ! -f "${CONFIG_PATH}" ]]; then
   fi
 fi
 
-if [[ -z "${PYTHON_EXECUTABLE}" ]]; then
-  if [[ -x "${PDEARENA_REPO}/.venv/bin/python" ]]; then
-    PYTHON_EXECUTABLE="${PDEARENA_REPO}/.venv/bin/python"
-  else
-    PYTHON_EXECUTABLE="python"
-  fi
-fi
-
 CONFIG_BASENAME="$(basename "${CONFIG_PATH}")"
 CONFIG_STEM="${CONFIG_BASENAME%.yaml}"
 
@@ -199,8 +191,14 @@ get_num_gpus() {
 
 read -r -a EXTRA_ARGS_ARR <<< "${EXTRA_ARGS}"
 
+if [[ -n "${PYTHON_EXECUTABLE}" ]]; then
+  read -r -a PYTHON_CMD_ARR <<< "${PYTHON_EXECUTABLE}"
+else
+  PYTHON_CMD_ARR=(uv run python)
+fi
+
 CMD=(
-  "${PYTHON_EXECUTABLE}"
+  "${PYTHON_CMD_ARR[@]}"
   "${PDEARENA_REPO}/${TRAIN_SCRIPT}"
   "${TRAIN_SUBCOMMAND}"
   "--config" "${CONFIG_PATH}"
