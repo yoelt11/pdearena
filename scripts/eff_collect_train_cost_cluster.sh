@@ -44,7 +44,9 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   exit 0
 fi
 
-PDEARENA_REPO="${PDEARENA_REPO:-$HOME/Documents/Projects/git/pdearena}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+PDEARENA_REPO="${PDEARENA_REPO:-${DEFAULT_REPO_ROOT}}"
 CONFIG_PATH="${CONFIG_PATH:-${1:-}}"
 MODEL_TYPE="${MODEL_TYPE:-}"
 RUN_NAME="${RUN_NAME:-}"
@@ -197,6 +199,7 @@ CMD=(
   "${TRAIN_SUBCOMMAND}"
   "--config" "${CONFIG_PATH}"
   "--trainer.default_root_dir=${OUTPUT_ROOT}"
+  "--data.data_dir=${PDEARENA_REPO}/datasets"
   "--model.metrics_out_path=${OUTPUT_ROOT}/metrics.json"
   "--model.plot_out_path=${OUTPUT_ROOT}/gt_pred_abs_error.png"
 )
