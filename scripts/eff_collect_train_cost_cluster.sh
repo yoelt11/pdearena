@@ -46,7 +46,13 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-PDEARENA_REPO="${PDEARENA_REPO:-${DEFAULT_REPO_ROOT}}"
+if [[ -n "${PDEARENA_REPO:-}" ]]; then
+  PDEARENA_REPO="${PDEARENA_REPO}"
+elif [[ -n "${SLURM_SUBMIT_DIR:-}" && -d "${SLURM_SUBMIT_DIR}/configs" && -d "${SLURM_SUBMIT_DIR}/scripts" ]]; then
+  PDEARENA_REPO="${SLURM_SUBMIT_DIR}"
+else
+  PDEARENA_REPO="${DEFAULT_REPO_ROOT}"
+fi
 CONFIG_PATH="${CONFIG_PATH:-${1:-}}"
 MODEL_TYPE="${MODEL_TYPE:-}"
 RUN_NAME="${RUN_NAME:-}"

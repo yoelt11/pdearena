@@ -10,7 +10,14 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PDEARENA_REPO="${PDEARENA_REPO:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+DEFAULT_REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+if [[ -n "${PDEARENA_REPO:-}" ]]; then
+  PDEARENA_REPO="${PDEARENA_REPO}"
+elif [[ -n "${SLURM_SUBMIT_DIR:-}" && -d "${SLURM_SUBMIT_DIR}/configs" && -d "${SLURM_SUBMIT_DIR}/scripts" ]]; then
+  PDEARENA_REPO="${SLURM_SUBMIT_DIR}"
+else
+  PDEARENA_REPO="${DEFAULT_REPO_ROOT}"
+fi
 OUTPUT_BASE="${OUTPUT_BASE:-${PDEARENA_REPO}/outputs/train_cost}"
 COST_SCRIPT="${PDEARENA_REPO}/scripts/eff_collect_train_cost_cluster.sh"
 TABLE_PATH="${OUTPUT_BASE}/rebuttal_training_cost_table.md"
